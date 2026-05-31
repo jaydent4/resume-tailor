@@ -1,0 +1,26 @@
+# Personal data — keep the folder structure (.gitkeep) but never commit contents.
+
+# Job descriptions (may contain real postings you pasted in)
+jds/*
+!jds/.gitkeep
+
+# Generated resumes + PDFs (contain your personal resume data)
+output/*
+!output/.gitkeep
+
+# Past tailored resumes used as examples (personal resume data)
+examples/*
+!examples/.gitkeep
+
+# Master resume — contains real PII (name, phone, email, full resume).
+# Keep this local only; the skill reads it but it must not be committed.
+references/master.tex
+
+# LaTeX build artifacts (in case a compile is interrupted before cleanup)
+*.aux
+*.log
+*.out
+*.pdf
+
+# macOS
+.DS_Store
