@@ -22,5 +22,9 @@ references/master.tex
 *.out
 *.pdf
 
+# Personal Claude Code settings (machine-specific paths; not shared).
+# The shared, project-wide allowlist lives in .claude/settings.json (committed).
+.claude/settings.local.json
+
 # macOS
 .DS_Store

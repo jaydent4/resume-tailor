@@ -30,11 +30,23 @@ When generating a tailored resume from `master.tex`, you MUST:
    internship, or a JD stating "graduating December 2027 or later"). If the
    internship is satisfied by the June 2027 undergraduate date, omit the MS
    entry. When in doubt, omit it.
-8. **Use the Technical Skills preset that matches the archetype** (§4), trimming
-   categories that do not apply to the role.
+8. **Use the Technical Skills preset that matches the archetype** (§4), rendered
+   in the default four-bucket layout (Languages / Frameworks / Developer Tools /
+   Libraries), one line per bucket.
 9. **Use the coursework preset that matches the archetype** (§3).
-10. **Emphasize experience over projects:** aim for 3 bullets on the most
-    relevant experiences and 2 bullets on projects or less-related experiences.
+10. **Prioritize Experience over Projects and Skills.** Experience is the most
+    valuable real estate on the page; spend the page budget on it first. When the
+    page is tight, protect experience bullets and cut from Projects, Skills,
+    coursework, and clubs before touching Experience (see §7). Standard SWE
+    resume guidance is 3–5 bullets per role, with the most recent and most
+    relevant roles getting the most.
+    - **Maximize experience bullets whenever they fit:** give the most relevant
+      and most recent experiences their full available bullet set (up to 4), and
+      keep at least 3 on any experience that maps strongly to the role. Only drop
+      to 2 on the least-relevant experience, and only when needed to hold one page.
+    - **Keep projects leaner than experience:** 2 bullets each is the default,
+      3 only for a flagship project that is central to the role. Projects never
+      get more bullets than a relevant experience.
 11. **Never fabricate.** Do not invent projects, experiences, metrics, dates, or
     technologies that do not appear in `master.tex`. If asked to add unbuilt
     work, refuse.
@@ -115,42 +127,62 @@ Replace the master coursework line with the preset matching the archetype.
 
 ## 4. Technical Skills Presets
 
-Replace the master skills block with the preset matching the archetype. Each
-preset leads with the role's primary languages and trims unrelated stacks.
+Replace the master skills block with the preset matching the archetype. Render it
+in the **default four-bucket layout** — the standard Jake's Resume format and the
+most common on SWE resumes: one line each for **Languages / Frameworks /
+Developer Tools / Libraries** (~4 lines total). Skills is the lowest-priority
+section; keep every bucket to a single line. Lead each bucket with the role's
+primary tools, surface JD keywords, and never list a technology not in
+`master.tex`.
+
+Bucket guide (fold any other categories into these four):
+- **Languages:** programming languages.
+- **Frameworks:** web/app frameworks and backend/API stacks (React, Next.js,
+  Node.js, Express, Flask, FastAPI, GraphQL, gRPC, REST, ...).
+- **Developer Tools:** cloud, DevOps, and infrastructure (AWS, GCP, Docker,
+  Kubernetes, Linux, Git, GitHub Actions, CI/CD, Terraform, Nginx, ...).
+- **Libraries:** databases, ML/data, and testing/observability (PostgreSQL,
+  Redis, MongoDB, PyTorch, Pandas, scikit-learn, Pytest, ...).
+
+LaTeX block (four rows, each one line):
+
+```
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+  \small{
+    \item{
+      \textbf{Languages:} ... \\
+      \textbf{Frameworks:} ... \\
+      \textbf{Developer Tools:} ... \\
+      \textbf{Libraries:} ... \\
+    }
+  }
+\end{itemize}
+```
 
 ### General SWE (default)
 - **Languages:** Python, JavaScript/TypeScript, Java, C++, Go, C, Bash, SQL
-- **Cloud & DevOps:** AWS, GCP, Docker, Kubernetes, Linux, Git, GitHub Actions, CI/CD
-- **Backend / APIs:** Node.js, Express, Flask, FastAPI, GraphQL, gRPC, REST
-- **Databases:** PostgreSQL, MySQL, MongoDB, Redis, Firebase, DynamoDB, SQLite
-- **Frontend:** React, Next.js, TypeScript, TailwindCSS, HTML, CSS
-- **ML / Data:** PyTorch, TensorFlow, NumPy, Pandas, scikit-learn
-- **Testing / Observability:** Jest, Pytest, Playwright, Selenium, OpenTelemetry
+- **Frameworks:** React, Next.js, Node.js, Express, Flask, FastAPI, GraphQL, gRPC, REST
+- **Developer Tools:** AWS, GCP, Docker, Kubernetes, Linux, Git, GitHub Actions, CI/CD
+- **Libraries:** PostgreSQL, MySQL, MongoDB, Redis, DynamoDB, PyTorch, Pandas, scikit-learn, Pytest, Jest
 
 ### Web / Product SWE
 - **Languages:** TypeScript/JavaScript, Python, Go, Java, SQL, Bash
-- **Frontend:** React, Next.js, TailwindCSS, shadcn/ui, Vite, HTML, CSS
-- **Backend / APIs:** Node.js, Express, Flask, FastAPI, GraphQL, gRPC, REST
-- **Cloud & DevOps:** AWS, GCP, Cloudflare Workers/D1/R2, Terraform, Docker, Kubernetes, Linux, Git, GitHub Actions, CI/CD
-- **Databases:** PostgreSQL, MySQL, MongoDB, Redis, Firebase, SQLite
-- **Libraries:** BetterAuth, NextAuth, Kysely, Drizzle, Zod, SWR, TanStack Query
-- **Testing:** Jest, Pytest, Playwright, Selenium
+- **Frameworks:** React, Next.js, Node.js, Express, FastAPI, REST, TailwindCSS, shadcn/ui, Vite
+- **Developer Tools:** AWS, GCP, Cloudflare Workers/D1/R2, Terraform, Docker, Kubernetes, Linux, Git, CI/CD
+- **Libraries:** PostgreSQL, MySQL, MongoDB, Redis, Firebase, Drizzle, Kysely, Zod, TanStack Query, Playwright
 
 ### Systems / Infra
 - **Languages:** C++, Go, Python, C, Rust, Bash, SQL, Java
-- **Systems & HPC:** CUDA, OpenMP, Linux, Docker, Kubernetes, Nginx
-- **Cloud:** AWS (Lambda, DynamoDB, S3, EC2), GCP, Terraform, Cloudflare Workers
-- **Backend / APIs:** gRPC, Protobuf, Kafka, RabbitMQ, Flask, FastAPI, REST
-- **Databases:** PostgreSQL, MySQL, Redis, DynamoDB, SQLite, Elasticsearch
-- **Observability:** pprof, OpenTelemetry, Prometheus, Grafana
-- **Tools:** Git, GitHub Actions, CI/CD, Jenkins
+- **Frameworks:** gRPC, Protobuf, REST, Flask, FastAPI, Kafka, RabbitMQ
+- **Developer Tools:** AWS, GCP, Terraform, Docker, Kubernetes, Linux, Nginx, Git, CI/CD, Jenkins
+- **Libraries:** PostgreSQL, Redis, DynamoDB, Elasticsearch, CUDA, OpenMP, pprof, OpenTelemetry, Prometheus, Grafana
 
 ### AI / ML
 - **Languages:** Python, C++, Go, Java, JavaScript/TypeScript, Bash, SQL
-- **ML / Data:** PyTorch, TensorFlow, scikit-learn, NumPy, Pandas, Hugging Face, RAG, LangChain, Optuna, Weights and Biases, ONNX, CUDA
-- **Cloud & DevOps:** AWS, GCP, Docker, Kubernetes, Linux, Git, GitHub Actions, CI/CD
-- **Backend / APIs:** Node.js, Flask, FastAPI, gRPC, REST, Kafka, Celery
-- **Databases:** PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch
+- **Frameworks:** Flask, FastAPI, Node.js, gRPC, REST, Kafka, Celery
+- **Developer Tools:** AWS, GCP, Docker, Kubernetes, Linux, Git, GitHub Actions, CI/CD
+- **Libraries:** PyTorch, TensorFlow, scikit-learn, NumPy, Pandas, Hugging Face, LangChain, CUDA, PostgreSQL, Redis
 
 ---
 
@@ -176,6 +208,38 @@ For each role/project in `master.tex`:
 - No em dashes. No contractions. Formal tone. Past tense for completed work;
   "Incoming" only for the Everpure entry.
 - Quantify with the metrics already in `master.tex`; do not round or invent.
-- If the page overflows, trim in this order: EXTRA bullets, then coursework and
-  clubs, then skills categories, then a least-relevant project. Do **not** shrink
-  font size or margins below the template defaults.
+- If the page overflows, trim in this order (experience is protected until the
+  very end): (1) EXTRA bullets, (2) clubs line, (3) coursework, (4) trim the
+  longest Skills row (Libraries or Developer Tools), (5) a project's bullets,
+  (6) the least-relevant project entirely, (7) only as a last resort, a single
+  bullet from the least-relevant experience. Do **not** shrink font size or
+  margins below the template defaults.
+
+---
+
+## 7. One-Page Content Budget
+
+Use this to size the resume correctly on the FIRST compile so the trim-and-recompile
+loop stays short. Build to this budget, then verify with `scripts/compile.sh`
+(page count) and `scripts/overflow.sh` (shows what spilled, as text). These
+figures assume the Jake's Resume template defaults in `master.tex`.
+
+- **Baseline that fits one page:** 4 experiences + 2 projects + a 5-row Skills
+  block + Education (coursework line; clubs optional).
+- **The MS Education entry costs roughly one project's worth of height.** When it
+  is included, plan for **4 experiences + 2 projects** and drop the clubs line.
+  When it is omitted, you have room for a 3rd project or the clubs line.
+- **Skills uses the four-bucket layout by default (~4 lines):** Languages,
+  Frameworks, Developer Tools, Libraries (§4). Keep each row to one line (roughly
+  <= 110 characters); if a row wraps it costs a full line, so trim its longest
+  list first (Libraries and Developer Tools are the usual offenders).
+- **Long, metric-dense bullets wrap to two printed lines.** Budget for this in
+  ML/research/distributed-systems bullets; three long bullets can equal five
+  short ones in height.
+- **Experience is funded first** (directive 10). If the budget is tight, the
+  adjustments come from Projects/Skills/coursework/clubs, not from cutting
+  experience bullets.
+- **Do not read a rendered image to check fit.** Trust `compile.sh` (Pages line +
+  overfull warnings), `scripts/overflow.sh` (page-2 text), and
+  `scripts/lint-output.sh`. Only render an image if the layout looks structurally
+  wrong after those pass.

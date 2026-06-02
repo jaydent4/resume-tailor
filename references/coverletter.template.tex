@@ -1,0 +1,85 @@
+%==============================================================================
+% COVER LETTER TEMPLATE
+%
+% Reusable one-page cover letter that visually matches the resume (same header,
+% same margins). Copy this file to `output/<role>-coverletter.tex`, fill in every
+% <...> placeholder, then compile with `scripts/compile.sh`.
+%
+% Rules (same as the resume): no em dashes, no contractions, formal tone,
+% pdflatex-compatible. Never invent facts not in `references/master.tex`.
+% Keep it to ONE page (compile.sh prints a `Pages:` line).
+%
+% Header personal details (<FULL NAME>, <PHONE>, <EMAIL>, links) must match the
+% header block in `references/master.tex` exactly.
+%==============================================================================
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+\pdfgentounicode=1
+
+\begin{document}
+
+% ----- Header (must match references/master.tex) -----
+\begin{center}
+    \textbf{\Huge \scshape <FULL NAME>} \\ \vspace{2pt}
+    \small <PHONE> $|$ \href{mailto:<EMAIL>}{\underline{<EMAIL>}} $|$
+    \href{<LINKEDIN URL>}{\underline{<LINKEDIN LABEL>}} $|$
+    \href{<GITHUB URL>}{\underline{<GITHUB LABEL>}}
+\end{center}
+
+\vspace{-6pt}
+\rule{\textwidth}{0.8pt}
+
+\vspace{4pt}
+<MONTH DAY, YEAR>
+
+<RECIPIENT TEAM OR NAME> \\
+<COMPANY> \\
+<CITY, STATE>
+
+Dear <SALUTATION>,
+
+<PARAGRAPH 1: hook. Name the role and why this company specifically. Tie one of
+the company's stated values or the team's mission to the kind of work you want.>
+
+<PARAGRAPH 2: strongest, most relevant proof. Two or three concrete
+achievements from the resume that map to the role's core requirements, with the
+real metrics.>
+
+<PARAGRAPH 3: breadth and culture fit. Secondary relevant experience plus the
+working-style or values signals the JD asks for (collaboration, best practices,
+AI tooling, etc.). Keep every claim grounded in the master resume.>
+
+<PARAGRAPH 4: close. Restate interest, look forward to contributing, thank the
+reader.>
+
+\vspace{6pt}
+Sincerely, \\
+<FULL NAME>
+
+\end{document}
