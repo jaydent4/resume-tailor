@@ -16,8 +16,11 @@ When generating a tailored resume from `master.tex`, you MUST:
    guidance comments). The preamble and custom commands carry over unchanged.
 2. **Include exactly ONE bullet variant per role/project**, chosen by the role
    archetype in §2. Never emit two variants for the same entry.
-3. **Limit scope to keep one page:** 3–4 experiences and 2–3 projects. Cut the
-   least relevant entries first.
+3. **Fill exactly one page.** Use 3–4 experiences and 2–3 projects, and make the
+   content fill the *full* page (reaching the bottom margin) without overflowing
+   — an under-full page wastes the candidate's strongest real estate. When over,
+   cut the least-relevant entries first; when under, add real `master.tex`
+   bullets, experience first. See §7 for the budget and the fill method.
 4. **Pin the incoming Everpure entry to the TOP of Experience** as a single
    bullet (it is chronologically in the future but leads the section).
 5. **Order remaining experiences by recency** (most recent first).
@@ -243,3 +246,29 @@ figures assume the Jake's Resume template defaults in `master.tex`.
   overfull warnings), `scripts/overflow.sh` (page-2 text), and
   `scripts/lint-output.sh`. Only render an image if the layout looks structurally
   wrong after those pass.
+
+### Fill the full page (experience-first)
+
+A one-page resume should FILL the page: content should reach the bottom margin
+with no large empty band. An under-full page wastes the candidate's strongest
+real estate. Aim for full but not overflowing.
+
+Get there token-efficiently by converging from ABOVE, not below:
+
+1. **Build deliberately rich.** Max out experience bullets (up to 4-5 on the most
+   relevant and recent roles, using their variant + EXTRA bullets) and include
+   enough projects so the FIRST compile is at or slightly over one page.
+2. **If it overflows, trim down** with `scripts/overflow.sh` per the §6 order
+   until it just fits. Trimming from slightly-over lands a full page
+   automatically, and overflow.sh shows what to cut as text (no image read).
+3. **If it compiles to one page with obvious empty space, add the next bullet**
+   and recompile. Repeat until adding one more would overflow.
+
+When filling (step 3), add in this priority — the mirror of the trim order:
+- First, more **EXPERIENCE** bullets: restore a variant/EXTRA bullet on an
+  already-included experience, or add a relevant 4th experience.
+- Then a project bullet, or an additional relevant project.
+- Coursework, clubs, and Skills rows are last — they pad, they do not sell.
+
+Fill ONLY with real content from `master.tex` (other variant bullets, EXTRA
+bullets, or another genuine entry). Never invent or pad with filler.

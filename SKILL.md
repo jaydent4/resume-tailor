@@ -103,6 +103,8 @@ scripts/overflow.sh output/<role>.pdf
 
 Trim per the order in directive §1.6 (EXTRA bullets → clubs → coursework → a Skills row → a project's bullets → least-relevant project → only last, an experience bullet), then recompile. Build to the one-page budget in directive §7 up front to keep this loop short. Never shrink fonts or margins below the template defaults unless it is absolutely needed to fit all required skills and experiences. Only render an image to read if the layout looks structurally wrong after `compile.sh`, `overflow.sh`, and `lint-output.sh` all pass.
 
+**Fill the full page (directive §7).** The resume should fill one full page, not leave an empty band at the bottom. Build deliberately rich so the first compile is at or slightly over one page, then trim down with `overflow.sh` until it just fits — this lands a full page without reading an image. If it compiles to one page with obvious empty space, add the next most valuable bullet (experience first: a variant/EXTRA bullet on an included role, or a relevant 4th experience; then projects) from `master.tex` and recompile until adding one more would overflow. Fill only with real master content.
+
 Notify the user of which variants or bullet points are chosen with justification and of any formatting changes.
 
 ### Step 4: Cover Letter and Free-Text Responses
