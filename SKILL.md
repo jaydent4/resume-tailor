@@ -17,9 +17,9 @@ Generates a one-page, ATS-friendly LaTeX resume tailored to a specific role by s
 
 ## Output
 
-- A single compilable `.tex` file written to `output/<role>.tex`, and a PDF via `scripts/compile.sh output/<role>.tex`.
-- If the posting takes a cover letter: `output/<role>-coverletter.tex` (from `references/coverletter.template.tex`) and its compiled PDF.
-- If the posting has any free-text fields (cover letter body, "why this company", essays, etc.): `output/<role>-responses.txt` holding every written response in plain, copy-pasteable text.
+- A single compilable `.tex` file written to `output/<name>_resume_<role>.tex`, and a PDF via `scripts/compile.sh output/<name>_resume_<role>.tex`. `<name>` is the candidate's full name from the `master.tex` header, lowercased with spaces replaced by underscores, and `<role>` is a short slug for the target role (see directive 14 in `references/directives.md`). Example: `output/jane_doe_resume_backend.tex`.
+- If the posting takes a cover letter: `output/<name>_resume_<role>-coverletter.tex` (from `references/coverletter.template.tex`) and its compiled PDF.
+- If the posting has any free-text fields (cover letter body, "why this company", essays, etc.): `output/<name>_resume_<role>-responses.txt` holding every written response in plain, copy-pasteable text.
 
 ## Instructions
 
@@ -72,11 +72,11 @@ Using the archetype, keywords, and JD requirements gathered above, assemble a on
 3. **Prioritize Experience, then trim.** Experience outranks Projects and Skills for page space (directive §1.10). Keep 3–4 experiences and 2–3 projects, give the most relevant and recent experiences their fullest bullet set (up to 4, at least 3 when strongly relevant), and keep projects leaner (2 bullets, 3 only for a flagship). When tight, cut from Projects/Skills/coursework/clubs before touching experience bullets. Order the most relevant experiences and projects highest; drop entries that do not map to the role.
 4. **Mirror the JD's language.** Prefer the variants and skills that surface the company's keywords and required technologies, without inventing anything not in the master. Try to get in all keywords in the resume, including all skills and experiences required or preferred.
 5. **Conditional sections.** Include the MS education entry only when the internship needs a graduation date past the undergraduate one (the MS pushes the expected grad date back); follow directive §1.7 in `references/directives.md`. Tailor coursework and the skills preset to the role.
-6. **Write the output.** Save a clean, compilable `.tex` (no master-only comments) to `output/<role>.tex`.
+6. **Write the output.** Save a clean, compilable `.tex` (no master-only comments) to `output/<name>_resume_<role>.tex`, following the naming convention in directive 14 (`<name>` is the master header name lowercased with underscores, e.g. `jane_doe`).
 7. **Lint the output.** Confirm the exported `.tex` has no master-only leftovers (guidance comments, un-deleted alternate variants) without re-reading it:
 
 ```bash
-scripts/lint-output.sh output/<role>.tex
+scripts/lint-output.sh output/<name>_resume_<role>.tex
 ```
 
 Fix anything it reports before compiling. It exits 0 when clean.
@@ -84,7 +84,7 @@ Fix anything it reports before compiling. It exits 0 when clean.
 8. **Check keyword coverage.** Confirm the JD's required and preferred skills/technologies actually landed in the resume, by passing them to:
 
 ```bash
-scripts/keyword-check.sh output/<role>.tex "Go" "Kubernetes" "GitHub Actions" "GCP"
+scripts/keyword-check.sh output/<name>_resume_<role>.tex "Go" "Kubernetes" "GitHub Actions" "GCP"
 ```
 
 For each keyword reported missing: add it only if it exists in `references/master.tex` (surface it via a different variant, an EXTRA bullet, or the skills preset). If a missing keyword is not in the master, do not invent it; note the gap to the user instead.
@@ -92,13 +92,13 @@ For each keyword reported missing: add it only if it exists in `references/maste
 9. **Compile and verify (text-first, no images).** Build the PDF and confirm it fits on exactly one page. `compile.sh` prints a `Pages:` line (rely on it instead of reading the PDF) and flags any overfull-margin layout warnings:
 
 ```bash
-scripts/compile.sh output/<role>.tex
+scripts/compile.sh output/<name>_resume_<role>.tex
 ```
 
 If `Pages:` is more than 1, do NOT render the PDF to an image. Run the overflow diagnostic, which prints the spilled content as plain text so you can see exactly what to trim:
 
 ```bash
-scripts/overflow.sh output/<role>.pdf
+scripts/overflow.sh output/<name>_resume_<role>.pdf
 ```
 
 Trim per the order in directive §1.6 (EXTRA bullets → clubs → coursework → a Skills row → a project's bullets → least-relevant project → only last, an experience bullet), then recompile. Build to the one-page budget in directive §7 up front to keep this loop short. Never shrink fonts or margins below the template defaults unless it is absolutely needed to fit all required skills and experiences. Only render an image to read if the layout looks structurally wrong after `compile.sh`, `overflow.sh`, and `lint-output.sh` all pass.
@@ -114,18 +114,18 @@ Only do this when Step 1 found the posting takes a cover letter or asks free-tex
 1. **Cover letter (if the posting takes one).** Copy the template and fill it in:
 
 ```bash
-cp references/coverletter.template.tex output/<role>-coverletter.tex
+cp references/coverletter.template.tex output/<name>_resume_<role>-coverletter.tex
 ```
 
 Replace every `<...>` placeholder. Copy the header personal details (name, phone, email, links) verbatim from the header block in `references/master.tex` so the letter matches the resume. Tailor the body to the company and role using the keywords and archetype from Steps 2–3. Keep it to one page, then compile and verify:
 
 ```bash
-scripts/compile.sh output/<role>-coverletter.tex
+scripts/compile.sh output/<name>_resume_<role>-coverletter.tex
 ```
 
 `compile.sh` prints a `Pages:` line and flags overfull-margin warnings, same as for the resume. Trim until it is one page.
 
-2. **Free-text responses.** Write every written response to `output/<role>-responses.txt` as plain text so the user can paste it straight into the application:
+2. **Free-text responses.** Write every written response to `output/<name>_resume_<role>-responses.txt` as plain text so the user can paste it straight into the application:
    - No markdown, no headings styling, no decoration.
    - Label each answer with the exact question, then a blank line, then the answer.
    - Each paragraph is one continuous line (no hard mid-paragraph line wraps) so it reflows cleanly in a web form textarea. Separate paragraphs with one blank line.

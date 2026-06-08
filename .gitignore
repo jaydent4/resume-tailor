@@ -15,6 +15,7 @@ examples/*
 # Master resume — contains real PII (name, phone, email, full resume).
 # Keep this local only; the skill reads it but it must not be committed.
 references/master.tex
+references/directives.md
 
 # LaTeX build artifacts (in case a compile is interrupted before cleanup)
 *.aux
