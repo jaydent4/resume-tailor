@@ -6,9 +6,16 @@ set -euo pipefail
 src="${1:?usage: scripts/compile.sh <path/to/resume.tex>}"
 outdir="$(dirname "$src")"
 
-pdflatex -interaction=nonstopmode -halt-on-error -output-directory "$outdir" "$src"
-
 base="$outdir/$(basename "${src%.tex}")"
+
+# pdflatex's console output is ~100 lines of noise per run; keep it out of the
+# transcript and print only the error context when the build fails.
+if ! pdflatex -interaction=nonstopmode -halt-on-error -output-directory "$outdir" "$src" >/dev/null 2>&1; then
+  echo "BUILD FAILED: $src"
+  grep -A4 -E '^!|Error' "$base.log" 2>/dev/null | head -30 || true
+  rm -f "$base".{aux,out}
+  exit 1
+fi
 
 # Surface overfull/underfull boxes: these are warnings (not errors), so text
 # running past the margin still "compiles" and stays a 1-page PDF that looks

@@ -8,7 +8,7 @@
 #   scripts/keyword-check.sh output/<role>.tex "Go" "Kubernetes" "GitHub Actions"
 #   scripts/keyword-check.sh output/<role>.tex "Go,Kubernetes,PostgreSQL,GCP"
 #
-# Prints a present/missing report. Exits 0 if every keyword is present,
+# Prints only the missing keywords. Exits 0 if every keyword is present,
 # 1 if any are missing, 2 on error.
 set -euo pipefail
 
@@ -35,15 +35,10 @@ for arg in "$@"; do
   done
 done
 
-echo "Keyword coverage for $tex:"
+# Only missing keywords are listed: present ones carry no information.
 missing=()
 for kw in "${keywords[@]}"; do
-  if grep -iqF -- "$kw" "$tex"; then
-    echo "  ✓ $kw"
-  else
-    echo "  ✗ $kw"
-    missing+=("$kw")
-  fi
+  grep -iqF -- "$kw" "$tex" || missing+=("$kw")
 done
 
 if [[ "${#missing[@]}" -eq 0 ]]; then

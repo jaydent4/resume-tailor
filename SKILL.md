@@ -1,157 +1,87 @@
 ---
 name: resume-tailor
-description: Creates a tailored resume using LaTeX and the job posting. Use when the user asks to "tailor my resume for [ROLE NAME]" or "tailor my resume for the role in [FILE NAME].txt". Works from a job description as text file and a master resume as a LaTeX file.
+description: Tailors a one-page LaTeX resume (plus cover letter and application answers) to a job posting, and runs an auto-apply workflow that finds postings, tailors, fills, and submits applications (blacklisted companies wait for approval). Use for "tailor my resume for [ROLE]", "tailor my resume for the role in [FILE].txt", "apply to jobs", "run auto-apply", "review my pending applications", "set up auto-apply".
 ---
 
 # Resume Tailor
 
-## Overview
+Builds a one-page, ATS-friendly resume by selecting the best content variants from `references/master.tex` (content only, never edited) under the rules in `references/directives.md`, against a job description in `jds/`.
 
-Generates a one-page, ATS-friendly LaTeX resume tailored to a specific role by selecting the best content variants from the master resume at `references/master.tex` and compiling them against a target job description.
+## Workflows
 
-## Inputs
+- **Tailor** (one role): Steps 1–4 below.
+- **Auto-apply** ("apply to jobs", "run auto-apply", "review my pending applications", "set up auto-apply"): read `references/auto-apply.md` and follow it. It runs Steps 1–4 in pipeline mode per posting.
 
-- **Job description** — a `.txt` file in `jds/` (or pasted text).
-- **Master resume** — `references/master.tex` (resume content only; never edited).
-- **Directives** — `references/directives.md` (generation rules, archetype selection, coursework/skills presets).
+### Pipeline mode (Steps 1–4 called by auto-apply)
+
+The caller gives a JD file, role slug, cover letter yes/no, and the form's free-text questions. Differences from a normal run:
+
+- Use the given JD file and slug (`output/<name>_resume_<company>_<role>.tex`); never pick the newest file in `jds/`.
+- Skip the Step 1 cover letter / question discovery; write a Step 4 response for **every** question given, labeled verbatim, within its limit.
+- Step 2: if `output/` already has a resume for this company (`ls output/*_resume_<company>*.tex`), start from the closest one and re-check it against this JD instead of researching from scratch. Otherwise at most two quick searches for company keywords; no interview-report research.
+- Never ask the user anything. Reply with the short report the caller asked for (paths, `Pages:` line, missing keywords, unanswerable questions), not the Step 3/4 user notes.
+- All Rules still apply. Flag, never invent.
 
 ## Output
 
-- A single compilable `.tex` file written to `output/<name>_resume_<role>.tex`, and a PDF via `scripts/compile.sh output/<name>_resume_<role>.tex`. `<name>` is the candidate's full name from the `master.tex` header, lowercased with spaces replaced by underscores, and `<role>` is a short slug for the target role (see directive 14 in `references/directives.md`). Example: `output/jane_doe_resume_backend.tex`.
-- If the posting takes a cover letter: `output/<name>_resume_<role>-coverletter.tex` (from `references/coverletter.template.tex`) and its compiled PDF.
-- If the posting has any free-text fields (cover letter body, "why this company", essays, etc.): `output/<name>_resume_<role>-responses.txt` holding every written response in plain, copy-pasteable text.
+- `output/<name>_resume_<role>.tex` and its PDF. `<name>` = master header name lowercased with underscores (e.g. `jane_doe`); `<role>` = short role slug (directive 14).
+- Cover letter (if the posting takes one): `output/<name>_resume_<role>-coverletter.tex` + PDF.
+- Free-text answers (if any): `output/<name>_resume_<role>-responses.txt`.
 
-## Instructions
+## Step 1: Read the job posting
 
-### Step 1: Get Job Posting Information
+`cat jds/<ROLE NAME>.txt`. No file named → newest: `ls -t jds/*.txt | head -1 | xargs cat`. No files → ask the user to add one to `jds/`.
 
-Read the job description from the text file specified by the user. All job descriptions are held in the `jds` directory:
+Gather: the role; required skills; preferred skills; whether it takes a cover letter; any other questions needing a written response.
 
-```bash
-cat jds/<ROLE NAME>.txt
-```
+## Step 2: Research
 
-If this fails or the user did not provide a file name, grab the most recently added or updated job description:
+1. **Company:** search the product, mission, tech stack, and engineering culture. Note recurring keywords and values to mirror.
+2. **Archetype:** pick A–G from the Role Archetype Selection Guide in `references/directives.md`.
+3. **What gets interviews:** search interview reports and resume advice for this company/role (r/EngineeringResumes, Glassdoor, blogs). Use only as keyword/phrasing guidance; never import facts, metrics, or experiences.
+4. **Past resumes:** `ls -t examples/*.tex output/*.tex 2>/dev/null | head -20`; reuse archetype/skills-preset choices from similar roles or the same company.
 
-```bash
-ls -t jds/*.txt 2>/dev/null | head -1 | xargs cat
-```
+Capture: archetype, keywords to emphasize, any prior resume to model.
 
-If there is no job description files in `jds`, inform the user to add a job description in `jds`.
+## Step 3: Tailor
 
-Gather:
+Follow every rule in `references/directives.md`.
 
-- What is the role?
-- What skills or experiences is the job description asking for?
-- What are the skills that are required for the role?
-- What are the skills that are optional but preferred for the role?
-- Does the job posting take a cover letter?
-- Does the job posting have any other questions that require a response (e.g. Why do you want to work at [COMPANY NAME]?)?
+1. **Select by archetype:** its experiences, projects, coursework preset, and skills preset.
+2. **One variant per entry:** the bullet variant that best matches the JD's required and preferred skills.
+3. **Experience first** (§1.10): 3–4 experiences, 2–3 projects. Most relevant/recent experiences get their fullest bullet set (up to 4, at least 3 when strongly relevant); projects get 2 bullets (3 only for a flagship). Order by relevance; drop entries that do not map to the role.
+4. **Mirror the JD:** prefer variants and skills that surface its keywords and required technologies. Aim to cover every required and preferred skill that exists in the master.
+5. **Conditional sections:** MS entry only when the internship needs a grad date past the undergraduate one (§1.7). Tailor coursework and skills preset to the role.
+6. **Write** a clean `.tex` (no master-only comments) to `output/<name>_resume_<role>.tex`.
+7. **Lint:** `scripts/lint-output.sh <tex>` (exit 0 = clean). Fix anything reported.
+8. **Keywords:** `scripts/keyword-check.sh <tex> "Go" "Kubernetes" ...` with the JD's required/preferred skills. Add a missing one only if it is in `master.tex` (another variant, an EXTRA bullet, or the skills preset); otherwise report the gap.
+9. **Compile:** `scripts/compile.sh <tex>`. Trust its `Pages:` line and layout warnings; do not read the PDF.
+   - **Over 1 page:** `scripts/overflow.sh <pdf>` prints the spilled text. Trim in §1.6 order (EXTRA bullets → clubs → coursework → a Skills row → a project's bullets → least relevant project → last, an experience bullet), recompile.
+   - **Fill the page (§7):** build slightly rich so the first compile is at or just over one page, then trim to fit. If it fits with obvious empty space, add the next most valuable real bullet from the master (experience first, then projects) until one more would overflow.
+   - Never shrink fonts or margins below template defaults unless it is the only way to fit all required skills and experiences. Render an image only if the layout looks structurally wrong after compile, overflow, and lint all pass.
 
-### Step 2: Research the Company's Values, Work, and Past Resumes
+Tell the user which variants/bullets were chosen and why, and any formatting changes.
 
-Build context beyond the job description so the resume speaks the company's language.
+## Step 4: Cover letter and free-text responses
 
-1. **Company research.** Search the web for the company's product, mission, tech stack, and engineering culture. Note recurring keywords and values (e.g "ownership", "customer obsession", specific languages/frameworks) to mirror in bullet selection and phrasing.
-2. **Map to an archetype.** Use the findings plus the JD to pick the role archetype (A–G) from the Role Archetype Selection Guide in `references/directives.md`.
-3. **Research what gets interviews.** Search the web for interview reports, offer write-ups, and resume advice for this company/role (e.g. r/EngineeringResumes, Glassdoor, blog posts). Extract the skills and signals they screen for, not resumes to copy. Treat anything found as phrasing/keyword guidance only; never import facts, metrics, or experiences from it.
-4. **Review past tailored resumes.** Check `examples/` for resumes targeting similar roles or companies, and reuse variant/skills-preset choices that worked:
+Only when Step 1 found them. Ground every sentence in `master.tex`. Same voice as the resume.
 
-```bash
-ls -t examples/*.tex 2>/dev/null
-```
+1. **Cover letter:** `cp references/coverletter.template.tex output/<name>_resume_<role>-coverletter.tex`, replace every `<...>`, copy the header details verbatim from `master.tex`, tailor the body with the Step 2–3 keywords. `scripts/compile.sh` it and trim to one page.
+2. **Responses** in `output/<name>_resume_<role>-responses.txt`, plain text: each answer labeled with the exact question, a blank line, then the answer. No markdown. One line per paragraph (no hard wraps), blank line between paragraphs. Include the cover letter text when the form has a text box for it. Respect word limits and note the count when one applies.
 
-Capture: the chosen archetype, the company keywords to emphasize, and any prior example worth modeling.
-
-### Step 3: Tailor the Master Resume for the Role
-
-Using the archetype, keywords, and JD requirements gathered above, assemble a one-page resume from `references/master.tex`, following every rule in `references/directives.md`.
-
-1. **Select content by archetype.** Follow the archetype's recommended experiences, projects, coursework preset, and Technical Skills preset from `references/directives.md`.
-2. **Pick one variant per entry.** For each chosen experience and project, include exactly ONE bullet variant, the one that best matches the JD's required and preferred skills.
-3. **Prioritize Experience, then trim.** Experience outranks Projects and Skills for page space (directive §1.10). Keep 3–4 experiences and 2–3 projects, give the most relevant and recent experiences their fullest bullet set (up to 4, at least 3 when strongly relevant), and keep projects leaner (2 bullets, 3 only for a flagship). When tight, cut from Projects/Skills/coursework/clubs before touching experience bullets. Order the most relevant experiences and projects highest; drop entries that do not map to the role.
-4. **Mirror the JD's language.** Prefer the variants and skills that surface the company's keywords and required technologies, without inventing anything not in the master. Try to get in all keywords in the resume, including all skills and experiences required or preferred.
-5. **Conditional sections.** Include the MS education entry only when the internship needs a graduation date past the undergraduate one (the MS pushes the expected grad date back); follow directive §1.7 in `references/directives.md`. Tailor coursework and the skills preset to the role.
-6. **Write the output.** Save a clean, compilable `.tex` (no master-only comments) to `output/<name>_resume_<role>.tex`, following the naming convention in directive 14 (`<name>` is the master header name lowercased with underscores, e.g. `jane_doe`).
-7. **Lint the output.** Confirm the exported `.tex` has no master-only leftovers (guidance comments, un-deleted alternate variants) without re-reading it:
-
-```bash
-scripts/lint-output.sh output/<name>_resume_<role>.tex
-```
-
-Fix anything it reports before compiling. It exits 0 when clean.
-
-8. **Check keyword coverage.** Confirm the JD's required and preferred skills/technologies actually landed in the resume, by passing them to:
-
-```bash
-scripts/keyword-check.sh output/<name>_resume_<role>.tex "Go" "Kubernetes" "GitHub Actions" "GCP"
-```
-
-For each keyword reported missing: add it only if it exists in `references/master.tex` (surface it via a different variant, an EXTRA bullet, or the skills preset). If a missing keyword is not in the master, do not invent it; note the gap to the user instead.
-
-9. **Compile and verify (text-first, no images).** Build the PDF and confirm it fits on exactly one page. `compile.sh` prints a `Pages:` line (rely on it instead of reading the PDF) and flags any overfull-margin layout warnings:
-
-```bash
-scripts/compile.sh output/<name>_resume_<role>.tex
-```
-
-If `Pages:` is more than 1, do NOT render the PDF to an image. Run the overflow diagnostic, which prints the spilled content as plain text so you can see exactly what to trim:
-
-```bash
-scripts/overflow.sh output/<name>_resume_<role>.pdf
-```
-
-Trim per the order in directive §1.6 (EXTRA bullets → clubs → coursework → a Skills row → a project's bullets → least-relevant project → only last, an experience bullet), then recompile. Build to the one-page budget in directive §7 up front to keep this loop short. Never shrink fonts or margins below the template defaults unless it is absolutely needed to fit all required skills and experiences. Only render an image to read if the layout looks structurally wrong after `compile.sh`, `overflow.sh`, and `lint-output.sh` all pass.
-
-**Fill the full page (directive §7).** The resume should fill one full page, not leave an empty band at the bottom. Build deliberately rich so the first compile is at or slightly over one page, then trim down with `overflow.sh` until it just fits — this lands a full page without reading an image. If it compiles to one page with obvious empty space, add the next most valuable bullet (experience first: a variant/EXTRA bullet on an included role, or a relevant 4th experience; then projects) from `master.tex` and recompile until adding one more would overflow. Fill only with real master content.
-
-Notify the user of which variants or bullet points are chosen with justification and of any formatting changes.
-
-### Step 4: Cover Letter and Free-Text Responses
-
-Only do this when Step 1 found the posting takes a cover letter or asks free-text questions. Ground every sentence in `references/master.tex`; never invent facts. Use the same voice as the resume: formal, no contractions, no em dashes.
-
-1. **Cover letter (if the posting takes one).** Copy the template and fill it in:
-
-```bash
-cp references/coverletter.template.tex output/<name>_resume_<role>-coverletter.tex
-```
-
-Replace every `<...>` placeholder. Copy the header personal details (name, phone, email, links) verbatim from the header block in `references/master.tex` so the letter matches the resume. Tailor the body to the company and role using the keywords and archetype from Steps 2–3. Keep it to one page, then compile and verify:
-
-```bash
-scripts/compile.sh output/<name>_resume_<role>-coverletter.tex
-```
-
-`compile.sh` prints a `Pages:` line and flags overfull-margin warnings, same as for the resume. Trim until it is one page.
-
-2. **Free-text responses.** Write every written response to `output/<name>_resume_<role>-responses.txt` as plain text so the user can paste it straight into the application:
-   - No markdown, no headings styling, no decoration.
-   - Label each answer with the exact question, then a blank line, then the answer.
-   - Each paragraph is one continuous line (no hard mid-paragraph line wraps) so it reflows cleanly in a web form textarea. Separate paragraphs with one blank line.
-   - Include the cover letter text here too (in addition to the compiled PDF) when the form has an "enter manually" cover-letter box.
-   - Respect any stated word limits on a question; note the word count if a limit applies.
-
-Tell the user which responses were produced and where, and flag any application question you could not answer truthfully from the master resume.
+Tell the user what was produced and where, and flag any question that cannot be answered truthfully from the master.
 
 ## Rules
 
 - NEVER invent projects, experiences, metrics, or technologies not in the master.
 - No em dashes, no contractions, formal tone, pdflatex-compatible.
-- Trim coursework/clubs/skills before shrinking fonts or margins.
-- Do not include URLs except for Github profile links or Linkedin headers.
-- Follow Jake's Resume template in `references`.
-- Final resumes must be exactly 1 page.
-- Prioritize Experience over Projects and Skills for page space. Maximize experience bullets whenever they fit (up to 4 on the most relevant/recent, at least 3 when strongly relevant); keep projects to 2 bullets (3 only for a flagship). When over a page, trim Projects/Skills/coursework/clubs before cutting any experience bullet.
+- URLs only for the GitHub profile and LinkedIn header.
+- Jake's Resume template; exactly 1 page.
+- Page priority: Experience > Projects > Skills/coursework/clubs (see Step 3.3 and the trim order).
 
 ## Reference
 
-- `references/master.tex` — master resume content (all roles, projects, bullet variants)
-- `references/directives.md` — generation rules, archetype selection, coursework/skills presets
-- `references/directives.template.md` — reusable skeleton for writing a directives file
-- `references/coverletter.template.tex` — reusable one-page cover letter LaTeX template (matches the resume header)
-- `scripts/lint-output.sh` — check an exported `.tex` for master-only leftovers without reading it
-- `scripts/keyword-check.sh` — confirm the JD's required/preferred keywords made it into the resume
-- `scripts/compile.sh` — compile a tailored `.tex` to PDF (reports page count and layout warnings)
-- `scripts/pdf-pages.sh` — report a PDF's page count to check the 1-page rule without reading the PDF
-- `scripts/overflow.sh` — when a resume overflows, print the spilled page-2 text (so you trim without reading a rendered image)
+- `references/master.tex`, `references/directives.md` (+ `directives.template.md`), `references/coverletter.template.tex`
+- `references/auto-apply.md` (+ `auto-apply-setup.md`) — auto-apply workflow
+- `scripts/compile.sh` (build; prints `Pages:` and layout warnings, errors only on failure), `scripts/overflow.sh` (page-2 text), `scripts/lint-output.sh`, `scripts/keyword-check.sh`, `scripts/pdf-pages.sh`
+- `scripts/jobs.py` (sweep / screen / jd), `scripts/track.py` (tracker + company gate), `scripts/form-fields.js` (compact form dump) — auto-apply

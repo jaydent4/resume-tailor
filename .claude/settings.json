@@ -10,7 +10,16 @@
       "Bash(ls:*)",
       "Bash(cp references/coverletter.template.tex:*)",
       "Edit(output/**)",
-      "Write(output/**)"
+      "Write(output/**)",
+      "Bash(python3 scripts/jobs.py:*)",
+      "Bash(python3 scripts/track.py:*)",
+      "Edit(applications/**)",
+      "Write(applications/**)",
+      "Write(jds/**)",
+      "Bash(cat scripts/form-fields.js)",
+      "Read(scripts/form-fields.js)",
+      "Read(config/**)",
+      "Read(state/**)"
     ]
   }
 }

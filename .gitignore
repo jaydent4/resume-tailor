@@ -17,6 +17,12 @@ examples/*
 references/master.tex
 references/directives.md
 
+# Auto-apply: personal settings, form answers, application records, sweep output
+config/apply.json
+config/profile.json
+applications/
+state/
+
 # LaTeX build artifacts (in case a compile is interrupted before cleanup)
 *.aux
 *.log
@@ -29,3 +35,6 @@ references/directives.md
 
 # macOS
 .DS_Store
+
+# Python bytecode (scripts/jobs.py imports track.py)
+__pycache__/

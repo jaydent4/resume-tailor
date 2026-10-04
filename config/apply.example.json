@@ -1,0 +1,219 @@
+{
+  "_readme": "Auto-apply settings. Copy to config/apply.json (gitignored) and edit. Read by references/auto-apply.md, scripts/jobs.py and scripts/track.py on every run.",
+  "run": {
+    "max_applications_per_run": 5,
+    "_max_note": "Hard cap on SUBMITTED + AWAITING_REVIEW applications per run. Skips and NEEDS_HUMAN do not count.",
+    "one_application_per_company_per_run": true,
+    "max_applications_per_company_lifetime": 3,
+    "_lifetime_note": "Stop at this many applications to one company, ever (counted in applications/tracker.tsv). 0 = no cap.",
+    "cover_letter_when_optional": true,
+    "confirm_every_submit": false,
+    "_confirm_note": "false = submit non-blacklisted applications without asking. true = treat EVERY company as blacklisted (stop for approval before each submit)."
+  },
+  "blacklist": [
+    {
+      "company": "Example Dream Co",
+      "aliases": [
+        "ExampleDream"
+      ],
+      "reason": "dream company; I want to review every answer"
+    },
+    "Another Company"
+  ],
+  "_blacklist_note": "Companies that must NEVER be applied to automatically. The workflow still finds the posting, checks eligibility and tailors the resume (and written answers), records it as RESUME_READY, and stops. Say \"review my pending applications\" to fill and submit one, only after your yes. Prefix matching: 'Citadel' also covers 'Citadel Securities'. Add \"exact\": true for short names that prefix other companies (Meta vs Metabase).",
+  "skip_companies": [],
+  "_skip_note": "Companies to never apply to at all, not even prepared for review (e.g. interviewing there now, already rejected, not interested).",
+  "sources": [
+    {
+      "type": "simplify",
+      "repo": "SimplifyJobs/Summer2027-Internships",
+      "label": "Simplify internships"
+    },
+    {
+      "type": "simplify",
+      "repo": "SimplifyJobs/New-Grad-Positions",
+      "label": "Simplify new grad"
+    },
+    {
+      "type": "greenhouse",
+      "slug": "stripe",
+      "company": "Stripe"
+    },
+    {
+      "type": "greenhouse",
+      "slug": "databricks",
+      "company": "Databricks"
+    },
+    {
+      "type": "greenhouse",
+      "slug": "figma",
+      "company": "Figma"
+    },
+    {
+      "type": "greenhouse",
+      "slug": "waymo",
+      "company": "Waymo"
+    },
+    {
+      "type": "ashby",
+      "slug": "notion",
+      "company": "Notion"
+    },
+    {
+      "type": "ashby",
+      "slug": "ramp",
+      "company": "Ramp"
+    },
+    {
+      "type": "ashby",
+      "slug": "openai",
+      "company": "OpenAI"
+    },
+    {
+      "type": "lever",
+      "slug": "palantir",
+      "company": "Palantir"
+    },
+    {
+      "type": "browse",
+      "url": "https://www.janestreet.com/join-jane-street/open-roles/?type=internship",
+      "company": "Jane Street",
+      "note": "own careers site, no public API"
+    }
+  ],
+  "_sources_note": "Where to look. greenhouse/lever/ashby take the board slug from the company's job-board URL (boards.greenhouse.io/<slug>, jobs.lever.co/<slug>, jobs.ashbyhq.com/<slug>). simplify reads a SimplifyJobs-style GitHub repo's .github/scripts/listings.json (optional 'branch', default dev). browse = any other careers page; the agent visits it in the browser and applies the same filters by hand.",
+  "filters": {
+    "title_include": [
+      "software",
+      "engineer",
+      "engineering",
+      "developer",
+      "swe",
+      "member of technical staff",
+      "machine learning"
+    ],
+    "title_exclude": [
+      "senior",
+      "sr",
+      "staff",
+      "principal",
+      "lead",
+      "manager",
+      "director",
+      "head of",
+      "architect",
+      "recruiter",
+      "sales",
+      "marketing",
+      "designer",
+      "mechanical",
+      "electrical",
+      "hardware",
+      "ii",
+      "iii",
+      "iv",
+      "phd",
+      "re:solutions? engineer",
+      "audio",
+      "photonics",
+      "mechatronics",
+      "civil",
+      "chemical",
+      "manufacturing",
+      "component",
+      "optical",
+      "rf",
+      "analog",
+      "technician"
+    ],
+    "_title_note": "Whole-word, case-insensitive. An entry starting with 're:' is a regex. 'Member of Technical Staff' is never excluded by 'staff'.",
+    "categories": [
+      "Software",
+      "AI/ML/Data",
+      "Quant",
+      "Software Engineering",
+      "Data Science, AI & Machine Learning"
+    ],
+    "category_rescue_titles": [
+      "software",
+      "firmware",
+      "embedded"
+    ],
+    "_categories_note": "Applies to feeds that tag a category (SimplifyJobs). Hardware/Product rows are dropped unless the title matches category_rescue_titles.",
+    "role_types": [
+      "new_grad",
+      "offseason_intern"
+    ],
+    "offseason_terms": [
+      "winter",
+      "spring"
+    ],
+    "_role_types_note": "Optional. Omit role_types to keep every role. new_grad = new-grad lists, titles like 'New Grad'/'Early Career'/'Engineer I', or descriptions asking for recent graduates. offseason_intern = internships whose term is in offseason_terms or off-cycle. Everything else (summer/fall/undated internships, unlabeled experienced roles) is dropped.",
+    "us_only": true,
+    "_us_only_note": "Keep a posting only if one of its locations is in the US (drops Canada and every other country). A bare 'Remote' is kept and confirmed from the posting.",
+    "locations_include": [
+      "los angeles",
+      "san francisco",
+      "bay area",
+      "new york",
+      "seattle",
+      "chicago",
+      "remote",
+      "united states",
+      "usa",
+      "us"
+    ],
+    "locations_exclude": [
+      "london",
+      "canada",
+      "toronto",
+      "india",
+      "bangalore",
+      "europe",
+      "singapore",
+      "tokyo",
+      "sydney",
+      "israel",
+      "dublin"
+    ],
+    "max_age_days": 14,
+    "max_years_experience": 1,
+    "_years_note": "The agent reads the description and SKIPS a posting that requires more years than this."
+  },
+  "eligibility": {
+    "needs_sponsorship": false,
+    "us_citizen_or_permanent_resident": true,
+    "graduation": "",
+    "_graduation_note": "e.g. 'June 2027'. Never misstated to fit a posting: a posting whose grad window excludes it is SKIPPED.",
+    "earliest_start": "",
+    "latest_start": ""
+  },
+  "channels": {
+    "never_apply_through": [
+      "linkedin easy apply",
+      "handshake",
+      "simplify",
+      "indeed",
+      "ziprecruiter"
+    ],
+    "_channels_note": "Aggregator listings are fine as SOURCES; the application itself always goes through the company's own ATS / careers site.",
+    "signed_in_portals": [],
+    "_portals_note": "Hosts where you created an account and stay signed in in Chrome (e.g. 'nvidia.wd5.myworkdayjobs.com'). The agent may apply inside an existing session there but never creates accounts, types passwords, or logs in."
+  },
+  "sheets": {
+    "webhook_url": "",
+    "token": "",
+    "_note": "Optional Google Sheet bridge. Paste scripts/sheets_webapp.gs into your sheet (Extensions -> Apps Script) with TOKEN = this token, deploy as a web app (Execute as: Me, Access: Anyone), put its URL in webhook_url. Submitted applications are APPENDED to tabs.new_grad / tabs.offseason_intern (a missing tab is created by copying template_tab); your rows are never edited. pipeline_tab is the script's own full-pipeline tab. `track.py import-sheet` reads every tab back as already-applied.",
+    "tabs": {
+      "new_grad": "",
+      "offseason_intern": ""
+    },
+    "template_tab": "",
+    "pipeline_tab": "Auto-apply"
+  },
+  "prior_company_aliases": {
+    "hrt": "Hudson River Trading",
+    "oai": "OpenAI"
+  },
+  "_prior_company_aliases_note": "Optional: jds/ filename prefixes -> company names, used by `track.py import-prior` to record roles you applied to before auto-apply. Unmapped prefixes are title-cased (stripe_swe_intern.txt -> Stripe)."
+}
